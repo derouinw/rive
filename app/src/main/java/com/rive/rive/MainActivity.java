@@ -157,7 +157,7 @@ public class MainActivity extends ActionBarActivity {
         String destination = lat + "," + lng;
         String origin = loc.getLatitude() + "," + loc.getLongitude();
 
-        Intent intent = new Intent(this, NavigateActivity.class);
+        Intent intent = new Intent(this, InstructionActivity.class);
 
         // Data for "hints"
         String name = "";

@@ -2,8 +2,13 @@
 <resources>
 
     <string name="app_name">Rive</string>
-    <string name="hello_world">Hello world!</string>
+
     <string name="action_settings">Settings</string>
-    <string name="title_activity_navigate">NavigateActivity</string>
+
+    <string name="title_activity_navigate">Navigate</string>
+    <string name="title_activity_instruction">Instructions</string>
+
+    <string name="instructions">Follow the directions to get to your destination\nHints will appear along the way</string>
+    <string name="warning">Friends don\'t let friends Rive alone\nKeep your eyes on the road!</string>
 
 </resources>
