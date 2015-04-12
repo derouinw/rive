@@ -33,4 +33,10 @@ public class InstructionActivity extends ActionBarActivity {
 
         startActivity(intent);
     }
+
+    public void uberAction(View view) {
+        Intent intent = new Intent(this, UberAuthenticateActivity.class);
+
+        startActivity(intent);
+    }
 }

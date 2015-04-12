@@ -33,19 +33,18 @@ public class MainActivity extends ActionBarActivity {
     public static final String DEST_EXTRA = "com.rive.rive.DESTINATION";
 
     // Yelp api information
-    String YELP_API_KEY = getString(R.string.yelp_api_key);
-    String YELP_CONSUMER_KEY = getString(R.string.yelp_consumer_key);
-    String YELP_CONSUMER_SECRET = getString(R.string.yelp_consumer_secret);
-    String YELP_TOKEN = getString(R.string.yelp_token);
-    String YELP_TOKEN_SECRET = getString(R.string.yelp_token_secret);
-    String YELP_API_PATH = getString(R.string.yelp_api_path);
-    String SEARCH_PATH = getString(R.string.yelp_search_path);
+    String YELP_CONSUMER_KEY;
+    String YELP_CONSUMER_SECRET;
+    String YELP_TOKEN;
+    String YELP_TOKEN_SECRET;
+    String YELP_API_PATH;
+    String YELP_SEARCH_PATH;
 
     // Yelp constants
-    String MEAL_CATEGORIES = getString(R.string.yelp_meal_categories);
-    String SNACK_CATEGORIES = getString(R.string.yelp_snack_categories);
-    String RADIUS_CLOSE = getString(R.string.yelp_radius_close);
-    String RADIUS_FAR = getString(R.string.yelp_radius_far);
+    String MEAL_CATEGORIES;
+    String SNACK_CATEGORIES;
+    String RADIUS_CLOSE;
+    String RADIUS_FAR;
 
     double lat, lng;
     Location loc;
@@ -59,10 +58,23 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        YELP_CONSUMER_KEY = getString(R.string.yelp_consumer_key);
+        YELP_CONSUMER_SECRET = getString(R.string.yelp_consumer_secret);
+        YELP_TOKEN = getString(R.string.yelp_token);
+        YELP_TOKEN_SECRET = getString(R.string.yelp_token_secret);
+        YELP_API_PATH = getString(R.string.yelp_api_path);
+        YELP_SEARCH_PATH = getString(R.string.yelp_search_path);
+
+        MEAL_CATEGORIES = getString(R.string.yelp_meal_categories);
+        SNACK_CATEGORIES = getString(R.string.yelp_snack_categories);
+        RADIUS_CLOSE = getString(R.string.yelp_radius_close);
+        RADIUS_FAR = getString(R.string.yelp_radius_far);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         final Button request = (Button)findViewById(R.id.submit);
+        request.setEnabled(false);
 
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
@@ -71,6 +83,7 @@ public class MainActivity extends ActionBarActivity {
                 // Called when a new location is found by the network location provider.
                 loc = location;
                 request.setText("Submit request");
+                request.setEnabled(true);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -136,7 +149,7 @@ public class MainActivity extends ActionBarActivity {
         Intent intent = new Intent(this, InstructionActivity.class);
 
         // Data for "hints"
-        String name = "";
+        /*String name = "";
         try {
             name = result.getString("name");
         } catch (JSONException e) {
@@ -145,7 +158,7 @@ public class MainActivity extends ActionBarActivity {
 
         intent.putExtra(NAME_EXTRA, name);
         intent.putExtra(ORIGIN_EXTRA, origin);
-        intent.putExtra(DEST_EXTRA, destination);
+        intent.putExtra(DEST_EXTRA, destination);*/
 
         startActivity(intent);
     }
@@ -173,7 +186,7 @@ public class MainActivity extends ActionBarActivity {
         String longitude = String.valueOf(location.getLongitude());
         String loc = latitude + "," + longitude;
 
-        new SendYelpRequest().execute(YELP_API_PATH + SEARCH_PATH, "ll", loc, "category_filter", categories, "radius_filter", radius);
+        new SendYelpRequest().execute(YELP_API_PATH + YELP_SEARCH_PATH, "ll", loc, "category_filter", categories, "radius_filter", radius);
     }
 
     private class SendYelpRequest extends AsyncTask<String, Void, String> {
@@ -212,6 +225,9 @@ public class MainActivity extends ActionBarActivity {
 
             TextView tv = (TextView)findViewById(R.id.text);
             tv.setText(business);
+
+            Button navigate = (Button)findViewById(R.id.navigate);
+            navigate.setVisibility(View.VISIBLE);
         }
     }
 }

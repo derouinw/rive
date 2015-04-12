@@ -7,11 +7,11 @@
 
     <string name="title_activity_navigate">Navigate</string>
     <string name="title_activity_instruction">Instructions</string>
+    <string name="title_activity_uber_authenticate">Sign in to Uber</string>
 
     <string name="instructions">Follow the directions to get to your destination\nHints will appear along the way</string>
     <string name="warning">Friends don\'t let friends Rive alone\nKeep your eyes on the road!</string>
 
-    <string name="yelp_api_key">AIzaSyCM039Crt5GFOee0R7-CHeZeL6ORuTOTPI</string>
     <string name="yelp_consumer_key">i0HANNUji9wbUlItaPZTbg</string>
     <string name="yelp_consumer_secret">hlooKcw-USOGcfEaPhI8CpVrmp8</string>
     <string name="yelp_token">6G6gS4eG8OnryQoYrq8Rcosdz2qCC6uT</string>
@@ -22,5 +22,9 @@
     <string name="yelp_snack_categories">bars</string>
     <string name="yelp_radius_close">5000</string>
     <string name="yelp_radius_far">20000</string>
+
+    <string name="uber_client_id">WsZ0hugN23RtYOnTYIl1AX9OsXLE2iNi</string>
+    <string name="uber_server_token">KzLD503hhGIkHMNu1bQTUfHMAEOOqvCCYJBRburi</string>
+    <string name="uber_secret">2G86BJospkXH7VxdiyQSha9PmJ0AHMA7gc0p0cqx</string>
 
 </resources>

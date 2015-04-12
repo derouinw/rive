@@ -29,9 +29,9 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Continue"
-        android:id="@+id/continueButton"
+        android:text="Ride with Uber"
+        android:id="@+id/uberButton"
         android:layout_gravity="center_horizontal"
-        android:onClick="continueAction"/>
+        android:onClick="uberAction"/>
 
 </LinearLayout>

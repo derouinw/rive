@@ -29,7 +29,15 @@
         </activity>
         <activity
             android:name=".InstructionActivity"
-            android:label="@string/title_activity_instruction">
+            android:label="@string/title_activity_instruction" >
+        </activity>
+        <activity
+            android:name=".UberAuthenticateActivity"
+            android:label="@string/title_activity_uber_authenticate"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.rive.rive.MainActivity" />
         </activity>
     </application>
 
