@@ -24,7 +24,7 @@ import org.json.JSONObject;
 
 
 public class NavigateActivity extends ActionBarActivity {
-    String KEY = "key=" + MainActivity.API_KEY;
+    String KEY = "key=" + getString(R.string.yelp_api_key);
     private static final String REQ = "https://maps.googleapis.com/maps/api/directions/json?";
 
     RequestQueue queue;

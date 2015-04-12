@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,29 +16,36 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.scribe.builder.ServiceBuilder;
+import org.scribe.model.OAuthRequest;
+import org.scribe.model.Response;
+import org.scribe.model.Token;
+import org.scribe.model.Verb;
+import org.scribe.oauth.OAuthService;
 
 
 public class MainActivity extends ActionBarActivity {
-    public static final String API_KEY = "AIzaSyCM039Crt5GFOee0R7-CHeZeL6ORuTOTPI";
-    private static final String REQ = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
-    private static final String LOC_ID = "location=";
-    private static final String KEY_ID = "key=";
-    private static final String RADIUS_ID = "radius=";
-    private static final String TYPES_ID = "types=";
-    private static final String MAXPRICE_ID = "maxprice=";
-
     public static final String NAME_EXTRA = "com.rive.rive.NAME";
     public static final String ORIGIN_EXTRA = "com.rive.rive.ORIGIN";
     public static final String DEST_EXTRA = "com.rive.rive.DESTINATION";
+
+    // Yelp api information
+    String YELP_API_KEY = getString(R.string.yelp_api_key);
+    String YELP_CONSUMER_KEY = getString(R.string.yelp_consumer_key);
+    String YELP_CONSUMER_SECRET = getString(R.string.yelp_consumer_secret);
+    String YELP_TOKEN = getString(R.string.yelp_token);
+    String YELP_TOKEN_SECRET = getString(R.string.yelp_token_secret);
+    String YELP_API_PATH = getString(R.string.yelp_api_path);
+    String SEARCH_PATH = getString(R.string.yelp_search_path);
+
+    // Yelp constants
+    String MEAL_CATEGORIES = getString(R.string.yelp_meal_categories);
+    String SNACK_CATEGORIES = getString(R.string.yelp_snack_categories);
+    String RADIUS_CLOSE = getString(R.string.yelp_radius_close);
+    String RADIUS_FAR = getString(R.string.yelp_radius_far);
 
     double lat, lng;
     Location loc;
@@ -44,6 +53,9 @@ public class MainActivity extends ActionBarActivity {
 
     LocationManager locationManager;
     LocationListener locationListener;
+
+    OAuthService yelpService;
+    Token yelpAccessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +80,10 @@ public class MainActivity extends ActionBarActivity {
             public void onProviderDisabled(String provider) {}
         };
 
+        // Create and initialize yelp OAuth 1.0a service
+        yelpService = new ServiceBuilder().provider(YelpAPI.class).apiKey(YELP_CONSUMER_KEY)
+                .apiSecret(YELP_CONSUMER_SECRET).build();
+        yelpAccessToken = new Token(YELP_TOKEN, YELP_TOKEN_SECRET);
     }
 
     @Override
@@ -102,55 +118,15 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void request(View view) {
-        String location = LOC_ID + loc.getLatitude() + "," + loc.getLongitude() + "&";
-
         boolean isMeal = ((RadioButton)findViewById(R.id.mealButton)).isChecked();
         boolean isCheap = ((RadioButton)findViewById(R.id.cheapButton)).isChecked();
         boolean isClose = ((RadioButton)findViewById(R.id.closeButton)).isChecked();
 
-        String radius = RADIUS_ID + ((isClose) ? "5000" : "10000") + "&";
-        String types = TYPES_ID + ((isMeal) ? "restaurant" : "bar") + "&";
-        String maxPrice = MAXPRICE_ID + ((isCheap) ? "2" : "3") + "&";
-        String key = KEY_ID + API_KEY;
+        String categories, radius;
+        categories = (isMeal) ? MEAL_CATEGORIES : SNACK_CATEGORIES;
+        radius = (isClose) ? RADIUS_CLOSE : RADIUS_FAR;
 
-        String request = REQ + location + radius + types + maxPrice + key;
-        System.out.println(request);
-
-        final TextView tv = (TextView)findViewById(R.id.text);
-        final Button b = (Button)findViewById(R.id.navigate);
-
-        RequestQueue queue = Volley.newRequestQueue(this);
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, request,
-                new Response.Listener<String>() {
-
-                    public void onResponse(String response) {
-                        System.out.println("Response is: " + response);
-
-                        try {
-                            JSONObject jo = new JSONObject(response);
-                            result = jo.getJSONArray("results").getJSONObject(0);
-                            String name = result.getString("name");
-
-                            lat = result.getJSONObject("geometry").getJSONObject("location").getDouble("lat");
-                            lng = result.getJSONObject("geometry").getJSONObject("location").getDouble("lng");
-
-                            tv.setText(name + " has been chosen");
-                            b.setVisibility(View.VISIBLE);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                System.out.println("That didn't work!");
-            }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        searchYelp(loc, categories, radius);
     }
 
     public void navigate(View view) {
@@ -188,5 +164,54 @@ public class MainActivity extends ActionBarActivity {
 
     private void stopLocationUpdates() {
         locationManager.removeUpdates(locationListener);
+    }
+
+    /* Yelp API OAuth */
+
+    private void searchYelp(Location location, String categories, String radius) {
+        String latitude = String.valueOf(location.getLatitude());
+        String longitude = String.valueOf(location.getLongitude());
+        String loc = latitude + "," + longitude;
+
+        new SendYelpRequest().execute(YELP_API_PATH + SEARCH_PATH, "ll", loc, "category_filter", categories, "radius_filter", radius);
+    }
+
+    private class SendYelpRequest extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            OAuthRequest request = new OAuthRequest(Verb.GET, params[0]);
+
+            // Key, Value pairs input in params
+            for (int i = 1; i < params.length; i+=2) {
+                request.addQuerystringParameter(params[i], params[i+1]);
+            }
+
+            yelpService.signRequest(yelpAccessToken, request);
+
+            Log.d("SENDING", request.getCompleteUrl());
+            Response response = request.send();
+            Log.d("YELP", response.getBody());
+            return response.getBody();
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            String business = "Business not found";
+
+            // Load business data from JSON
+            try {
+                JSONObject jo = new JSONObject(response);
+                JSONArray businesses = jo.getJSONArray("businesses");
+
+                JSONObject first = businesses.getJSONObject(0);
+                business = first.getString("name");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            TextView tv = (TextView)findViewById(R.id.text);
+            tv.setText(business);
+        }
     }
 }
