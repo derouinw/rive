@@ -1,10 +1,29 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.rive.rive.UberAuthenticateActivity">
+    tools:context="com.rive.rive.UberAuthenticateActivity"
+    android:id="@+id/uber_auth_layout">
 
     <WebView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/webView" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/uber_loading_auth_text"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="15dp"
+        android:visibility="gone"
+        android:id="@+id/uber_loading_text"/>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/uber_loading_text"
+        style="?android:attr/progressBarStyleLarge"
+        android:id="@+id/uber_loading_spinner"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
 </RelativeLayout>

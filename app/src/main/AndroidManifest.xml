@@ -39,6 +39,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.rive.rive.MainActivity" />
         </activity>
+        <activity
+            android:name=".OrderUberActivity"
+            android:label="@string/title_activity_order_uber"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.rive.rive.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

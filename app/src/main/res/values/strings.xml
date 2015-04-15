@@ -26,5 +26,17 @@
     <string name="uber_client_id">WsZ0hugN23RtYOnTYIl1AX9OsXLE2iNi</string>
     <string name="uber_server_token">KzLD503hhGIkHMNu1bQTUfHMAEOOqvCCYJBRburi</string>
     <string name="uber_secret">2G86BJospkXH7VxdiyQSha9PmJ0AHMA7gc0p0cqx</string>
+    <string name="uber_redirect">https://rive/redirect</string>
+    <string name="uber_access_token_path">https://login.uber.com/oauth/token</string>
+    <string name="uber_scopes">profile request</string>
+
+    <string name="hawk_password">4>A8+x?z\Af2e4a,</string>
+    <string name="key_access_token">com.rive.rive.UBER_ACCESS_TOKEN</string>
+    <string name="key_refresh_token">com.rive.rive.UBER_REFRESH_TOKEN</string>
+
+    <string name="uber_loading_auth_text">Authenticating with Uber...</string>
+    <string name="title_activity_order_uber">OrderUberActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>
