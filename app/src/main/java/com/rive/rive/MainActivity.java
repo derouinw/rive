@@ -1,11 +1,14 @@
 package com.rive.rive;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -52,6 +55,8 @@ public class MainActivity extends ActionBarActivity {
 
     LocationManager locationManager;
     LocationListener locationListener;
+    private LocationService locationService;
+    private boolean isBound = false;
 
     OAuthService yelpService;
     Token yelpAccessToken;
@@ -76,27 +81,34 @@ public class MainActivity extends ActionBarActivity {
         final Button request = (Button)findViewById(R.id.submit);
         request.setEnabled(false);
 
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-        locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location provider.
-                loc = location;
-                request.setText("Submit request");
-                request.setEnabled(true);
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-            public void onProviderEnabled(String provider) {}
-
-            public void onProviderDisabled(String provider) {}
-        };
-
         // Create and initialize yelp OAuth 1.0a service
         yelpService = new ServiceBuilder().provider(YelpAPI.class).apiKey(YELP_CONSUMER_KEY)
                 .apiSecret(YELP_CONSUMER_SECRET).build();
         yelpAccessToken = new Token(YELP_TOKEN, YELP_TOKEN_SECRET);
+    }
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @OverridePutting work
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            locationService = ((LocationService.LocationBinder)service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            locationService = null; // :(
+        }
+    };
+
+    void doBindService() {
+        bindService(new Intent(getApplicationContext(), LocationService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+        isBound = true;
+    }
+
+    void doUnbindService() {
+        if (isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
+        }
     }
 
     @Override
@@ -104,7 +116,7 @@ public class MainActivity extends ActionBarActivity {
         super.onStart();
 
         //apiClient.connect();
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        doBindService();
     }
 
 
@@ -166,13 +178,19 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public void onPause() {
         super.onPause();
-        stopLocationUpdates();
+        doUnbindService();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         //apiClient.disconnect();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        doUnbindService();
     }
 
     private void stopLocationUpdates() {

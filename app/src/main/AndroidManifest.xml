@@ -47,6 +47,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.rive.rive.MainActivity" />
         </activity>
+
+        <service
+            android:name=".LocationService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        
     </application>
 
 </manifest>

@@ -60,12 +60,12 @@ public class UberAuthenticateActivity extends ActionBarActivity {
         uberRequestToken = new Token(UBER_CLIENT_ID, UBER_SECRET);
 
         Hawk.init(this, getString(R.string.hawk_password));
-        if (Hawk.contains(UBER_ACCESS_TOKEN_KEY)) {
+        if (/*Hawk.contains(UBER_ACCESS_TOKEN_KEY*/ 1 == 2) {
             // Already have old access key - don't need to again
             uberAccessToken = Hawk.get(UBER_ACCESS_TOKEN_KEY);
             Log.d("TOKEN", uberAccessToken.getToken());
             Toast.makeText(getApplicationContext(), "Uber already authenticated", Toast.LENGTH_SHORT).show();
-            authCodeReceived();
+            loadOrderUber();
         } else {
 
             // Authenticate uber from webpage
@@ -93,8 +93,8 @@ public class UberAuthenticateActivity extends ActionBarActivity {
 
                         new GetUberAccessTokenTask().execute(UBER_ACCESS_TOKEN_PATH, uberAuthCode);
                         authCodeReceived();
-                    } else {
-                        authCodeError();
+                    } else if (url.contains("error")) {
+                       authCodeError();
                     }
                 /*if (url.contains("?code=") && authComplete != true) {
                     Uri uri = Uri.parse(url);
@@ -139,6 +139,12 @@ public class UberAuthenticateActivity extends ActionBarActivity {
     void authCodeError() {
         Toast.makeText(getApplicationContext(), "You have to authorize with Uber to ride with Uber", Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    void loadOrderUber() {
+        Intent intent = new Intent(getApplicationContext(), OrderUberActivity.class);
+        intent.putExtra(TOKEN_EXTRA, uberAccessToken);
+        startActivity(intent);
     }
 
     @Override
@@ -194,7 +200,7 @@ public class UberAuthenticateActivity extends ActionBarActivity {
 
             uberAccessToken = new Token(uberAccessString, "");
             uberRefreshToken = new Token(uberRefreshString, "");
-            Toast.makeText(getApplicationContext(), "Uber successfully authenticated", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Uber successfully authenticated", Toast.LENGTH_SHORT).show();
             return uberAccessToken;
         }
 
@@ -205,9 +211,7 @@ public class UberAuthenticateActivity extends ActionBarActivity {
             Hawk.put(UBER_REFRESH_TOKEN_KEY, uberRefreshToken);
 
             // Load next page
-            Intent intent = new Intent(getApplicationContext(), OrderUberActivity.class);
-            intent.putExtra(TOKEN_EXTRA, accessToken);
-            startActivity(intent);
+            loadOrderUber();
         }
     }
 }
